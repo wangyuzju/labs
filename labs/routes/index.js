@@ -7,7 +7,7 @@ router.get('/', function(req, res) {
 });
 
 
-router.get('/github_hook', function(req, res){
+router.post('/github_hook', function(req, res){
     console.log(req.params);
     res.json({code: 22000});
 });
