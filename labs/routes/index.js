@@ -9,7 +9,7 @@ router.get('/', function(req, res) {
 
 router.get('/github_hook', function(req, res){
     console.log(req.params);
-    res.end({code: 22000});
+    res.json({code: 22000});
 });
 
 module.exports = router;

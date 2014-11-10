@@ -10,6 +10,7 @@ start:
 
 stop:
 	pm2 delete labs
+	
 
 prod_update:
 	git pull
