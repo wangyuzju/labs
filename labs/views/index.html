@@ -1,0 +1,23 @@
+{% extends 'extends/bs_one_col.html' %}
+
+
+
+
+{%block body%}
+    <div class="container">
+        <div class="well">
+            hello world!
+        </div>
+    </div>
+
+{%endblock%}
+
+
+
+{% block js %}
+<script>
+    require(['$'], function($){
+        console.log($);
+    })
+</script>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends '../extends/bs_one_col.html' %}
+
+{%block body%}
+<style>
+    #imgInput {
+        background-position: center;
+        background-repeat: no-repeat;
+        min-height: 400px;
+        text-align: center;
+    }
+    .zeroclipboard-is-hover { background-color: #eee; }
+    .zeroclipboard-is-active { background-color: #aaa; }
+    .item {
+        position: relative;
+    }
+    .item .mask {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: #000;
+        opacity: .5;
+        display: none;
+        top: 0;
+        left: 0;
+    }
+    .thumbnail img{margin: auto;}
+    .item .thumbnail:hover .mask{
+        display: block;
+    }
+</style>
+<div class="container">
+    <div class="well" id="imgInput">
+    </div>
+</div>
+{% endblock %}
+
+
+
+{% block js %}
+<script>
+    require(['$', 'ZeroClipboard'], function($, ZeroClipboard){
+        window.client = new ZeroClipboard();
+
+        var api = {
+
+        };
+
+        api.removeImg = function(query){
+            return $.ajax({
+                url: "image/delete?" + $.param(query)
+            });
+        };
+
+        var rootElem = $("#imgInput");
+
+        $(rootElem).on("click", ".mask", function(){
+            var me = $(this);
+            // data("link") will be set when uoload an image succeed
+            var item = me.parents(".item");
+
+            api.removeImg({
+                link: item.data('link'),
+                category: item.data('category')
+            }).then(function(ret){
+                if(ret.code == 22000){
+                    item.remove();
+                }
+            });
+
+        });
+
+        client.on( 'ready', function(event) {
+            client.on( 'copy', function(event) {
+                event.clipboardData.setData('text/plain', event.target.innerHTML);
+            } );
+        });
+
+        var createImgDom = function(src){
+            var img = document.createElement("img");
+            img.className = "thumbnail";
+            img.src = src;
+            return img;
+        };
+
+        var pasteHelper = function(cb){
+//            var self = this;
+            return function(e){
+                var self = this;
+                var data = e.originalEvent.clipboardData;
+                var types = data.types;
+                var rImg = /image.*/;
+
+                types.forEach(function(type, i){
+                    var item = data.items[i];
+                    var _type = data.items[i].type;
+
+                    if(type.match(rImg) || _type.match(rImg)){
+                        // Blob 对象
+                        var file = item.getAsFile();
+
+                        var reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.onload = function(e){
+                            //
+                            var dataURL = e.target.result;
+                            cb.call(self, {
+                                e: e,
+                                file: file
+                            })
+                        }
+                    }
+                });
+
+            }
+        };
+
+        var uploadFile = function(file){
+            var form = new FormData();
+
+            var match = location.search.match(/target=([\w]+)/);
+            form.append('target', (match && match[1]) || 'test');
+            form.append("file", file);
+
+            return $.ajax({
+                url: '/image/upload',
+                data: form,
+                processData: false,
+                contentType: false,
+                type: 'POST'
+            });
+        };
+
+        $('.well').on('paste', pasteHelper(function(ret){
+            var self = $(this);
+            var item = $('<div class="item"><div class="thumbnail"><div class="mask"></div></div></div>');
+            self.append(item);
+            item.find(".thumbnail").append(createImgDom(ret.e.target.result));
+            console.log(ret.file);
+            uploadFile(ret.file).then(function(ret){
+                var data = ret.data;
+                var linkElem = $('<div class="url">' +
+                        location.protocol + '//' + location.host + data.link
+                    + '</div>'
+                );
+                item.append(linkElem);
+                console.log(data);
+                item.data('link', data.link);
+                item.data('category', data.category);
+                client.clip($('.url'));
+            });
+        }));
+    })
+</script>
+{% endblock %}
