@@ -6,4 +6,10 @@ router.get('/', function(req, res) {
   res.render('index', { title: 'Express' });
 });
 
+
+router.get('/github_hook', function(req, res){
+    console.log(req.params);
+    res.end({code: 22000});
+});
+
 module.exports = router;
