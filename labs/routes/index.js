@@ -8,9 +8,9 @@ router.get('/', function(req, res) {
 
 
 router.post('/github_hook', function(req, res){
-    console.log(req.params);
+    // github hooks 发送的 post 请求使用的是 applicaiton/json 的 Content Type，因此仅需要读取 req.body 对象即可
     console.log(req.body);
-    
+
     res.json({code: 22000});
 });
 
