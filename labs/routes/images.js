@@ -41,7 +41,7 @@ router.post('/upload', function(req, res, next){
                 link: publicLink,
                 category: category
             }});
-        }).fail(function(err){
+        }).error(function(err){
             next(err);
         });
     });
@@ -51,24 +51,22 @@ router.post('/upload', function(req, res, next){
 
 router.get('/delete', function(req, res, next){
     var link = req.query.link;
-    var realPath = config.upload_file_dir + link.replace(/^\/upload/, '');
+    var realPath = config.path.upload + link.replace(/^\/upload/, '');
 
-    utils.rm(realPath).then(function(){
-    }).fail(function(err){
-        // 文件不存在的错误码为34, 返回删除结果成功
-        if(err.errno !== 34){
-            throw err;
-        }
-    }).then(function(){
+    utils.kit.unlink(realPath).then(function(){
         res.json({code: 22000});
         // 检查删除多余的文件目录
-        utils.rmdirp(path.dirname(realPath), 3).fail(function(err){
+        return utils.rmdirp(path.dirname(realPath), 3).catch(function(err){
             console.log(err);
         });
-    }).fail(function(){
-        // TODO log
-        res.json({code: 22001});
-    });
+    }).catch(function(err){
+        // 文件不存在的错误码为34, 返回删除结果成功
+        if(err.errno !== 34){
+            res.json({code: 22001});
+        }else{
+            res.json({code: 22000});
+        }
+    }).done();
 });
 
 module.exports = router;
