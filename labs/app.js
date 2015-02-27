@@ -8,12 +8,31 @@ var swig = require('swig');
 var multer = require('multer');
 var config = require('./config');
 
-var routes = require('./routes/index');
-var users = require('./routes/users');
-var images = require('./routes/images');
+//var routes = require('./routes/index');
+//var users = require('./routes/users');
+//var images = require('./routes/images');
+//var pm = require('./routes/pm');
+//var proxy = require('./routes/proxy');
 
 
 var app = express();
+
+var initRouter = function(app){
+    var routeMap = {
+        '/': './routes/index',
+        '/users': './routes/users',
+        '/image': './routes/images',
+        '/github': './routes/github'
+        //'/pm': './routes/pm',
+        //'/proxy': './routes/proxy'
+    };
+
+    for(var k in routeMap){
+        if (routeMap.hasOwnProperty(k)){
+            app.use(k, require(routeMap[k]));
+        }
+    }
+};
 
 // To disable Swig's cache, do the following:
 swig.setDefaults({ cache: false });
@@ -31,16 +50,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // 使 express 4 支持 form-data, 默认只支持
 // application/x-www-form-urlencoded and application/json request body data.
 app.use(multer({
-    dest: config.upload_file_dir + '/tmp'
+    dest: config.path.upload + '/tmp'
 }));
-app.use('/upload', express.static(path.join(config.upload_file_dir)));
+app.use('/upload', express.static(path.join(config.path.upload)));
 
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
-app.use('/users', users);
-app.use('/image', images);
+initRouter(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -55,6 +72,7 @@ app.use(function(req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
+        console.log(err);
         res.status(err.status || 500);
         res.render('error', {
             message: err.message,
