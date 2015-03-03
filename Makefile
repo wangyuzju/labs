@@ -1,6 +1,5 @@
-init:
+install_node_module:
 	cd labs && npm install
-
 
 dev:
 	DEBUG=labs supervisor labs/bin/www
@@ -16,6 +15,9 @@ test_push:
 	git commit -m "test github hooks"
 	git push
 
-prod_update:
+update:
+	git reset --hard
 	git pull
+
+prod_update: update install_node_module
 	pm2 restart "labs"

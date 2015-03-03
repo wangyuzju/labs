@@ -1,0 +1,53 @@
+{% extends '../extends/bs_one_col.html' %}
+
+
+
+{%block body%}
+<div class="container">
+    <h2>1. 部署</h2>
+    <hr/>
+    <div>
+        部署项目到服务器，例如<a href="http://hellofe.com:8088/git_hook/rules">http://hellofe.com:8088</a>，(默认端口为8088)。
+        此处和后面的域名请替换成自己的域名或者服务器的 ip 地址
+
+        <!--<code>-->
+        <pre>
+git clone https://github.com/wangyuzju/git-web-hook.git
+cd git-web-hook
+nohup bin/www &</pre>
+        <!--</code>-->
+
+
+    </div>
+
+    <h2>2. 配置服务器任务</h2>
+    <hr/>
+    <div>
+        <p>
+            访问 <a href="http://hellofe.com:8088/git_hook/rules" target="_blank">http://hellofe.com:8088/git_hook/rules</a>
+            页面, 填写项目的 id 和对应的任务
+        </p>
+        <img class="img-thumbnail" src="http://labs.hellofe.com/upload/image/labs/6b/23/69/a22b4b7c794ba78809861e2bee.png" alt=""/>
+    </div>
+
+
+
+    <h2>3. 配置项目的 hook</h2>
+    <hr/>
+    <div>
+        <p>
+            在项目的设置中，添加git web hook，访问地址为 http://hellofe.com:8088/git_hook/callback, 如下所示
+        </p>
+        <img class="img-thumbnail" src="http://labs.hellofe.com/upload/image/labs/4c/b9/7c/ce8ee6674e68fc0ada595bbcde.png" alt=""/>
+    </div>
+
+    <h2>4. 测试基于 web hook 的自动任务是否已经生效</h2>
+    <hr/>
+    <div>
+        <p>push 一个 commit 之后，访问 <a href="http://hellofe.com:8088/git_hook/log">http://hellofe.com:8088/git_hook/log</a>
+            页面查看是否执行了相应的 shell 命令
+        </p>
+        <img class="img-thumbnail" src="http://labs.hellofe.com/upload/image/labs/cc/bb/f6/a8b733bfb774930ef110d3bc2a.png" alt=""/>
+    </div>
+</div>
+{%endblock%}

@@ -22,7 +22,8 @@ var initRouter = function(app){
         '/': './routes/index',
         '/users': './routes/users',
         '/image': './routes/images',
-        '/github': './routes/github'
+        '/github': './routes/github',
+        '/product': './routes/product'
         //'/pm': './routes/pm',
         //'/proxy': './routes/proxy'
     };
