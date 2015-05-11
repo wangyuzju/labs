@@ -6,7 +6,7 @@ var dev = {
         runtime: __dirname + '/../runtime'
     },
     github: {
-        redirect_url: "http://127.0.0.1:4000"
+        redirect_url: "http://blog.hellofe.com"
     }
 };
 

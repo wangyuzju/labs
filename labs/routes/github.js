@@ -11,17 +11,19 @@ var utils = require('../lib/utils');
 var config = require('../config');
 
 /**
- * github api 相关
+ * github oauth callback api
  */
 router.get('/oauth_callback', function(req, res, next){
     console.log(req.url);
     console.log(req.query);
 
     var code = req.query.code;
+    // 附带在 github oauth redirec_url 中的参数，用于重定向页面到指定的地址
+    var client_url = req.query.client_url;
     if(!code){ return res.json({errCode: 22001, msg: "no code param specified"}) }
 
-    delete req.query.code;
-    var redirectParam = req.query;
+    //delete req.query.code;
+    //delete req.query.redirect_url;
     /**
      * 调用 github api 获取 access_token
      * @see [Github OAuth 文档]{@link https://developer.github.com/v3/oauth/}
@@ -44,8 +46,10 @@ router.get('/oauth_callback', function(req, res, next){
             try{
                 var data = JSON.parse(body);
                 if(data.access_token){
+                    var redirectParam = {};
                     redirectParam.access_token = data.access_token;
-                    res.redirect(302, config.github.redirect_url + '?' + querystring.stringify(redirectParam));
+                    res.redirect(302, (client_url || config.github.redirect_url)
+                        + '?' + querystring.stringify(redirectParam));
                 }else{
                     res.json({errorCode: 22001, data: data});
                 }
@@ -67,44 +71,6 @@ router.get('/', function(req, res, next){
         msg: 'github'
     });
 });
-
-
-
-function PostCode(codestring) {
-    // Build the post string from an object
-    var post_data = querystring.stringify({
-        'compilation_level' : 'ADVANCED_OPTIMIZATIONS',
-        'output_format': 'json',
-        'output_info': 'compiled_code',
-        'warning_level' : 'QUIET',
-        'js_code' : codestring
-    });
-
-    // An object of options to indicate where to post to
-    var post_options = {
-        host: 'closure-compiler.appspot.com',
-        port: '80',
-        path: '/compile',
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Content-Length': post_data.length
-        }
-    };
-
-    // Set up the request
-    var post_req = http.request(post_options, function(res) {
-        res.setEncoding('utf8');
-        res.on('data', function (chunk) {
-            console.log('Response: ' + chunk);
-        });
-    });
-
-    // post the data
-    post_req.write(post_data);
-    post_req.end();
-
-}
 
 
 module.exports = router;
